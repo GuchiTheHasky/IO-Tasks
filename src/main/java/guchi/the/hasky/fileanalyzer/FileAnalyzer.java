@@ -2,127 +2,51 @@ package guchi.the.hasky.fileanalyzer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+import java.util.*;
 
 
 public class FileAnalyzer {
-    private final Pattern pattern = Pattern.compile("[.?!]");
-
-    public void getResult(String[] array, String word) {
-        int count = 0;
-        List<String> list = new ArrayList<>();
-        for (String s : array) {
-            String temp = "";
-            for (int i = 0; i < s.length(); i++) {
-                if (!Character.isDigit(s.charAt(i)) && Character.isLetter(s.charAt(i))) {
-                    temp += s.charAt(i);
-                } else if (s.charAt(i) == ' ') {
-                    temp = "";
-                }
-                if (temp.equalsIgnoreCase(word)) {
-                    count++;
-                    list.add(s);
-                    temp = "";
-                }
-            }
-        }
-        System.out.println("Word count: " + count);
-        for (String str : list) {
-            System.out.println(str);
-        }
-    }
-
-    public String[] stringToArray(String str) {
-        String[] array;
-        return array = str.split(String.valueOf(pattern));
+    public boolean isFileExist(String s) {
+        return new File(s).exists();
     }
 
     public String fileToString(String path) {
         File file = new File(path);
-        if (file.exists()) {
-            try (FileInputStream input = new FileInputStream(file)) {
-                int length = (int) file.length();
-                byte[] bytes = new byte[length];
-                while (input.read(bytes) != -1) {
-                    return new String(bytes, StandardCharsets.UTF_8);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        try (FileInputStream input = new FileInputStream(file)) {
+            int length = (int) file.length();
+            byte[] bytes = new byte[length];
+            while (input.read(bytes) != -1) {
+                return new String(bytes, StandardCharsets.UTF_8);
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return null;
     }
 
-    private static String printEx(){
-        return "Error, wrong file name.";
-    }
 
-    public boolean isFileExist(String s){
-        return new File("c:/test/" + s + ".txt").exists();
-    }
-
-
-    /*
-    *
-    public static String inputNameFromDisk(BufferedReader reader) throws IOException {
-        System.out.println("Input file name: ");
-        return "c:/test/" + reader.readLine();
-    }
-
-    public static String inputNameFromPackege(BufferedReader reader) throws IOException {
-        System.out.println("Input file name: ");
-        return reader.readLine();
-    }
-    *
-    *
-    *    public String fromFileToString(File file) throws IOException {
-        FileInputStream reader = new FileInputStream(file);
-        StringBuilder builder = new StringBuilder();
-        int i = 0;
-        while ((i = reader.read()) != -1) {
-            builder.append((char) i);
-        }
-        return builder.toString();
-    }
-
-    public String readFile() throws IOException {
-        File file = new File(path);
-        if (file.exists()) {
-            try (FileInputStream in = new FileInputStream(path)) {
-                StringBuilder builder = new StringBuilder();
-                int i = 0;
-                while ((i = in.available()) != -1) {
-                    builder.append((char) i);
-                }
-                return builder.toString();
-            }
-        }
-        return "File, doesn't exist";
-    }
-    *
-    *     public static int getDuplicateWordCount(String str, String word) {
-        String[] temp = str.split(" ");
+    public void getResult(String str, String word) {
+        StringTokenizer tokenizer = new StringTokenizer(str, "[.?!\n]");
         int count = 0;
-        for (String string : temp) {
-            String s = "";
-            for (int i = 0; i < string.length(); i++) {
-                if (!Character.isDigit(string.charAt(i)) && Character.isLetter(string.charAt(i))) {
-                    s += string.charAt(i);
-                }
-                if (s.equalsIgnoreCase(word)) {
-                    count++;
-                    s = "";
+        Set<String> list = new HashSet<>();
+        try {
+            while (tokenizer.hasMoreTokens()) {
+                String[] words = tokenizer.nextToken().split(" ");
+                for (String s : words) {
+                    if (s.equalsIgnoreCase(word)) {
+                        count++;
+                        list.add(Arrays.toString(words));
+                    }
                 }
             }
+        } catch (Throwable ignored) {
         }
-        return count;
-    }*/
+        System.out.printf("Count of: \"%s\" \nis: %d.\n", word, count);
+        for (String s : list) {
+            System.out.println(s);
+        }
 
-
-
-
+    }
 }
 /*Используем классы FileInputStream, FileOutputStream, File
 Практика:

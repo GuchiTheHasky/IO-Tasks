@@ -1,28 +1,39 @@
 package guchi.the.hasky.filemanager;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Objects;
+import org.apache.commons.io.FileUtils;
 
 public class FileManager {
+    public static void main(String[] args) throws IOException {
+        FileManager manager = new FileManager();
+        File path = new File("src/main/java/guchi/the/hasky/filemanager/test");
 
-    public static void copyOne(String from, String to) throws IOException {
-        File fileFrom = new File(from);
-        File fileTo = new File(to);
+        int countFiles = manager.countFiles(path);
+        System.out.println("Files count: " + countFiles);
 
-        try (FileInputStream in = new FileInputStream(fileFrom);
-             FileOutputStream out = new FileOutputStream(fileTo)) {
+        int countDirectories = manager.countDirs(path);
+        System.out.println("Dirs count: " + countDirectories);
 
-            byte[] buffer = new byte[(int)fileFrom.length()];
-            while (in.available() != -1){
+        String from = "src/main/java/guchi/the/hasky/filemanager/test/aaa.txt";
+        String to = "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/lll.txt";
+        File source = new File(from);
+        File directory = new File(to);
+        manager.copy(from, to);
 
-            }
-        }
+        copyAll("src/main/java/guchi/the/hasky/filemanager/test",
+                "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/apachi");
+
+        move("src/main/java/guchi/the/hasky/filemanager/test/aaa.txt",
+          "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/aaa.txt");
+
+        moveAll("src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/apachi",
+                "src/main/java/guchi/the/hasky/filemanager/test/nine/apachi");
+
+
     }
 
-    public static int countFiles(File directory) { //Вивели всі файли в директорії
+    public int countFiles(File directory) {
         int count = 0;
         for (File file : Objects.requireNonNull(directory.listFiles())) {
             if (file.isDirectory()) {
@@ -35,32 +46,80 @@ public class FileManager {
         return count;
     }
 
-    public static int countPackage(File directory) {
+    public int countDirs(File path) {
         int count = 0;
-        for (File pack : directory.listFiles()) {
-            if (pack.isDirectory()) {
-                count++;
-            }
-            if (pack.isAbsolute()) {
-                count += countPackage(directory);
-            }
-        }
-        return count;
-    }
-
-    public static int countPackages(String path) { // вивели всі директорії і директорії в них
-        File file = new File(path);
-        int count = 0;
-        if (file.isAbsolute()) {
-            for (File file1 : file.listFiles()) {
-                if (file1.isDirectory()) {
+        if (path.isDirectory()) {
+            for (File file : Objects.requireNonNull(path.listFiles())) {
+                if (file.isDirectory()) {
                     count++;
-                    count += countPackages(file1.getAbsolutePath());
+                    count += countDirs(file);
                 }
             }
         }
         return count;
     }
+
+    public void copy(String source, String destination) throws IOException {
+        File file = new File(source);
+        File dest = new File(destination);
+        if (dest.exists() || file.exists()) {
+            System.err.println("Error, incorrect source or destination file.");
+        } else {
+            try (FileInputStream input = new FileInputStream(file);
+                 FileOutputStream output = new FileOutputStream(dest)) {
+
+                int size = source.length();
+                byte[] buffer = new byte[size];
+                int length;
+                while ((length = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, length);
+                    System.out.println("Operation, success.");
+                }
+            }
+        }
+    }
+
+    public static void copyAll(String source, String destination) throws IOException {
+        File from = new File(source);
+        File to = new File(destination);
+        if (to.listFiles() == null) {
+            FileUtils.copyDirectory(from, to);
+            System.out.println("Operation, success.");
+        } else {
+            System.err.println("Error, destination file, already exist.");
+        }
+    }
+
+    public static void move(String source, String destination) throws IOException {
+        File from = new File(source);
+        File to = new File(destination);
+        if (to.exists()) {
+            System.err.println("Error, destination file, already exist.");
+        } else {
+            FileUtils.moveFile(from, to);
+            System.out.println("Operation, success.");
+        }
+    }
+
+    public static void moveAll(String source, String destination) throws IOException {
+        File from = new File(source);
+        File to = new File(destination);
+        if (to.listFiles() == null) {
+            FileUtils.moveDirectory(from, to);
+            System.out.println("Operation, success.");
+        } else {
+            System.err.println("Error, destination file, already exist.");
+        }
+    }
+
+
+
+}
+
+
+
+
+
 
 
 
@@ -85,4 +144,4 @@ public static void copy(String from, String to) - метод по копиров
 public static void move(String from, String to) - метод по перемещению папок и файлов.
 Параметр from - путь к файлу или папке, параметр to - путь к папке куда будет производиться копирование.*/
 
-}
+
