@@ -2,127 +2,128 @@ package guchi.the.hasky.filemanager;
 
 import java.io.*;
 import java.util.Objects;
+
 import org.apache.commons.io.FileUtils;
 
-public class FileManager {
+public class FileManager implements Manager {
     public static void main(String[] args) throws IOException {
         FileManager manager = new FileManager();
+
         File path = new File("src/main/java/guchi/the/hasky/filemanager/test");
 
-        int countFiles = manager.countFiles(path);
-        System.out.println("Files count: " + countFiles);
 
-        int countDirectories = manager.countDirs(path);
-        System.out.println("Dirs count: " + countDirectories);
+//        int countFiles = manager.countFiles("src/main/java/guchi/the/hasky/filemanager/test");
+//        System.out.println("Files count: " + countFiles);
 
-        String from = "src/main/java/guchi/the/hasky/filemanager/test/aaa.txt";
-        String to = "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/lll.txt";
-        File source = new File(from);
-        File directory = new File(to);
-        manager.copy(from, to);
+//        int countDirectories = manager.countDirs("src/main/java/guchi/the/hasky/filemanager/test");
+//        System.out.println("Dirs count: " + countDirectories);
 
-        copyAll("src/main/java/guchi/the/hasky/filemanager/test",
-                "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/apachi");
-
-        move("src/main/java/guchi/the/hasky/filemanager/test/aaa.txt",
-          "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/aaa.txt");
-
-        moveAll("src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/apachi",
-                "src/main/java/guchi/the/hasky/filemanager/test/nine/apachi");
+//        String from = "src/main/java/guchi/the/hasky/filemanager/test/aaa.txt";
+//        String to = "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/lll.txt";
+//        File source = new File(from);
+//        File directory = new File(to);
+//        manager.copy(from, to);
+//
+        manager.copyAll("src/main/java/guchi/the/hasky/filemanager/test/testone/testfour/testfive",
+                "src/main/java/guchi/the/hasky/filemanager/test/testthree/testsix/testseven");
+//
+//        move("src/main/java/guchi/the/hasky/filemanager/test/aaa.txt",
+//          "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/aaa.txt");
+//
+//        moveAll("src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/apachi",
+//                "src/main/java/guchi/the/hasky/filemanager/test/nine/apachi");
 
 
     }
 
-    public int countFiles(File directory) {
-        int count = 0;
-        for (File file : Objects.requireNonNull(directory.listFiles())) {
-            if (file.isDirectory()) {
-                count += countFiles(file);
-            }
-            if (file.isFile()) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public int countDirs(File path) {
-        int count = 0;
-        if (path.isDirectory()) {
-            for (File file : Objects.requireNonNull(path.listFiles())) {
+    @Override
+    public int countFiles(String path) throws FileNotFoundException {
+        File directory = new File(path);
+        if (directory.exists()) {
+            int count = 0;
+            for (File file : Objects.requireNonNull(directory.listFiles())) {
                 if (file.isDirectory()) {
+                    count += countFiles(String.valueOf(file));
+                }
+                if (file.isFile()) {
                     count++;
-                    count += countDirs(file);
                 }
             }
+            return count;
+        } else {
+            throw new FileNotFoundException("Error, wrong directory name.");
         }
-        return count;
     }
 
-    public void copy(String source, String destination) throws IOException {
+    @Override
+    public int countDirs(String path) throws FileNotFoundException {
+        File directory = new File(path);
+        if (directory.exists()) {
+            int count = 0;
+            if (directory.isDirectory()) {
+                for (File file : Objects.requireNonNull(directory.listFiles())) {
+                    if (file.isDirectory()) {
+                        count++;
+                        count += countDirs(String.valueOf(file));
+                    }
+                }
+            }
+            return count;
+        } else {
+            throw new FileNotFoundException("Error, wrong directory name.");
+        }
+    }
+
+    @Override
+    public void copy(String source, String destination) throws FileNotFoundException {
         File file = new File(source);
         File dest = new File(destination);
-        if (dest.exists() || file.exists()) {
-            System.err.println("Error, incorrect source or destination file.");
-        } else {
-            try (FileInputStream input = new FileInputStream(file);
-                 FileOutputStream output = new FileOutputStream(dest)) {
-
-                int size = source.length();
-                byte[] buffer = new byte[size];
-                int length;
-                while ((length = input.read(buffer)) != -1) {
-                    output.write(buffer, 0, length);
-                    System.out.println("Operation, success.");
-                }
+        try (FileInputStream input = new FileInputStream(file);
+             FileOutputStream output = new FileOutputStream(dest)) {
+            int size = source.length();
+            byte[] buffer = new byte[size];
+            int length;
+            while ((length = input.read(buffer)) != -1) {
+                output.write(buffer, 0, length);
             }
+        } catch (IOException e) {
+            throw new FileNotFoundException("Error, wrong directory or source name.");
         }
     }
 
-    public static void copyAll(String source, String destination) throws IOException {
+    @Override
+    public void copyAll(String source, String destination) throws FileNotFoundException {
         File from = new File(source);
         File to = new File(destination);
-        if (to.listFiles() == null) {
+        try {
             FileUtils.copyDirectory(from, to);
-            System.out.println("Operation, success.");
-        } else {
-            System.err.println("Error, destination file, already exist.");
+        } catch (IOException e) {
+            throw new FileNotFoundException("Error, wrong directory or source name.");
         }
     }
 
-    public static void move(String source, String destination) throws IOException {
+    @Override
+    public void move(String source, String destination) throws FileNotFoundException {
         File from = new File(source);
         File to = new File(destination);
-        if (to.exists()) {
-            System.err.println("Error, destination file, already exist.");
-        } else {
+        try {
             FileUtils.moveFile(from, to);
-            System.out.println("Operation, success.");
+        } catch (IOException e) {
+            throw new FileNotFoundException("Error, wrong directory or source name.");
         }
     }
 
-    public static void moveAll(String source, String destination) throws IOException {
+    @Override
+    public void moveAll(String source, String destination) throws FileNotFoundException {
         File from = new File(source);
         File to = new File(destination);
-        if (to.listFiles() == null) {
+        try {
             FileUtils.moveDirectory(from, to);
-            System.out.println("Operation, success.");
-        } else {
-            System.err.println("Error, destination file, already exist.");
+        } catch (IOException e) {
+            throw new FileNotFoundException("Error, wrong directory or source name.");
         }
     }
-
-
-
 }
-
-
-
-
-
-
-
-
 
     /*2: Пишем class FileManager с методами
 public class FileManager {
