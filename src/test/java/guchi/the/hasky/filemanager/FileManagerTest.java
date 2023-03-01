@@ -28,23 +28,23 @@ public class FileManagerTest {
     @Test
     @DisplayName("Test, throw exception in count files method.")
     public void testCountFilesInSourceDirectoryAndThrowException() {
-       Throwable thrown = assertThrows(FileNotFoundException.class, () ->{
-           manager.countFiles(wrongPath);
-     });
+        Throwable thrown = assertThrows(FileNotFoundException.class, () -> {
+            manager.countFiles(wrongPath);
+        });
         assertNotNull(thrown.getMessage());
     }
 
     @Test
     @DisplayName("Test, count all packages in source directory.")
     public void testCountPackagesInSourceDirectory() throws FileNotFoundException {
-       int actual = manager.countDirs(path);
-       assertEquals(44, actual);
+        int actual = manager.countDirs(path);
+        assertEquals(44, actual);
     }
 
     @Test
     @DisplayName("Test, count all packages in source directory and throw exception.")
     public void testCountPackagesInSourceDirectoryAndThrowException() {
-        Throwable thrown = assertThrows(FileNotFoundException.class, () ->{
+        Throwable thrown = assertThrows(FileNotFoundException.class, () -> {
             manager.countDirs(wrongPath);
         });
         assertNotNull(thrown.getMessage());
@@ -59,12 +59,13 @@ public class FileManagerTest {
         File file = new File(directory);
         assertTrue(file.length() > 0);
     }
+
     @Test
     @DisplayName("Test, copy file to directory: false")
     public void testCopySourceFileToSomeDirectoryFalse() {
         String source = "src/test/java/guchi/the/hasky/one/Q.txt";
         String directory = "src/test/java/guchi/the/hasky/two/E.txt";
-        Throwable thrown = assertThrows(FileNotFoundException.class, () ->{
+        Throwable thrown = assertThrows(FileNotFoundException.class, () -> {
             manager.copy(source, directory);
         });
         assertNotNull(thrown.getMessage());
@@ -85,11 +86,11 @@ public class FileManagerTest {
 
     @Test
     @DisplayName("Test, copy all files to directory: throw exception")
-    public void testCopyAllFilesFromSourceToSomeDirectoryThrowException(){
+    public void testCopyAllFilesFromSourceToSomeDirectoryThrowException() {
         String source = "src/test/java/guchi/the/hasky/tests/non";
         String directory = "src/test/java/guchi/the/hasky/tests/three";
 
-        Throwable thrown = assertThrows(FileNotFoundException.class, () ->{
+        Throwable thrown = assertThrows(FileNotFoundException.class, () -> {
             manager.copyAll(source, directory);
         });
         assertNotNull(thrown.getMessage());
@@ -107,17 +108,19 @@ public class FileManagerTest {
         File nextFile = new File(directory);
         assertTrue(nextFile.exists());
     }
+
     @Test
     @DisplayName("Test, move file to directory & delete file in source, throw exception.")
     public void testMoveFileFromSourceToSomeDirectoryThrowException() {
         String source = "src/test/java/guchi/the/hasky/three/Q.txt";
         String directory = "src/test/java/guchi/the/hasky/four/P.txt";
 
-        Throwable thrown = assertThrows(FileNotFoundException.class, () ->{
+        Throwable thrown = assertThrows(FileNotFoundException.class, () -> {
             manager.copyAll(source, directory);
         });
         assertNotNull(thrown.getMessage());
     }
+
     @Test
     @DisplayName("Test, move all files to directory: throw exception")
     public void testMoveAllFileFromSourceToSomeDirectory() throws FileNotFoundException {

@@ -6,36 +6,6 @@ import java.util.Objects;
 import org.apache.commons.io.FileUtils;
 
 public class FileManager implements Manager {
-    public static void main(String[] args) throws IOException {
-        FileManager manager = new FileManager();
-
-        File path = new File("src/main/java/guchi/the/hasky/filemanager/test");
-
-
-//        int countFiles = manager.countFiles("src/main/java/guchi/the/hasky/filemanager/test");
-//        System.out.println("Files count: " + countFiles);
-
-//        int countDirectories = manager.countDirs("src/main/java/guchi/the/hasky/filemanager/test");
-//        System.out.println("Dirs count: " + countDirectories);
-
-//        String from = "src/main/java/guchi/the/hasky/filemanager/test/aaa.txt";
-//        String to = "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/lll.txt";
-//        File source = new File(from);
-//        File directory = new File(to);
-//        manager.copy(from, to);
-//
-        manager.copyAll("src/main/java/guchi/the/hasky/filemanager/test/testone/testfour/testfive",
-                "src/main/java/guchi/the/hasky/filemanager/test/testthree/testsix/testseven");
-//
-//        move("src/main/java/guchi/the/hasky/filemanager/test/aaa.txt",
-//          "src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/aaa.txt");
-//
-//        moveAll("src/main/java/guchi/the/hasky/filemanager/test/testtwo/testeight/apachi",
-//                "src/main/java/guchi/the/hasky/filemanager/test/nine/apachi");
-
-
-    }
-
     @Override
     public int countFiles(String path) throws FileNotFoundException {
         File directory = new File(path);
