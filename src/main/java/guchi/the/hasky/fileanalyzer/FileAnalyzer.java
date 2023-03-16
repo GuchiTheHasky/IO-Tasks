@@ -2,50 +2,77 @@ package guchi.the.hasky.fileanalyzer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 public class FileAnalyzer {
-    public boolean isFileExist(String s) {
-        return new File(s).exists();
+
+    private static final String SENTENCES_DELIM = String.valueOf(Pattern.compile("[.?!]"));
+    private static final String WORDS_DELIM = String.valueOf(Pattern.compile(" \n"));
+
+
+    public void analyze(String fileName, String word) throws FileNotFoundException {
+        System.out.println("Search word: " + word + '.');
+        String content = fileContent(fileName);
+        int wordCount = wordCount(content, word);
+        List<String> allSentences = sentences(content);
+        List<String> filterSentences = filterSentences(allSentences, word);
+        System.out.println("Words count: " + wordCount);
+        printSentences(filterSentences);
     }
 
-    public String fileToString(String path) {
-        File file = new File(path);
-        try (FileInputStream input = new FileInputStream(file)) {
-            int length = (int) file.length();
-            byte[] bytes = new byte[length];
-            while (input.read(bytes) != -1) {
-                return new String(bytes, StandardCharsets.UTF_8);
+    public int wordCount(String content, String word) {
+        StringTokenizer tokenizer = new StringTokenizer(content, WORDS_DELIM);
+        int count = 0;
+        while (tokenizer.hasMoreTokens()) {
+            if (tokenizer.nextToken().contains(word)) {
+                count++;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+        return count;
+    }
+
+    private String fileContent(String fileName) throws FileNotFoundException {
+        Path path = Path.of(fileName);
+        File file = new File(path.toUri());
+        try (InputStream input = new FileInputStream(file)) {
+            int size = Math.toIntExact(file.length());
+            byte[] buffer = new byte[size];
+            while (input.read(buffer) != -1) {
+                return new String(buffer, StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            throw new FileNotFoundException("Error code 404:\nWrong file name.");
         }
         return null;
     }
 
+    private List<String> sentences(String content) {
+        StringTokenizer tokenizer = new StringTokenizer(content, SENTENCES_DELIM);
+        List<String> sentences = new ArrayList<>();
+        while (tokenizer.hasMoreTokens()) {
+            sentences.add(tokenizer.nextToken());
+        }
+        return sentences;
+    }
 
-    public void getResult(String str, String word) {
-        StringTokenizer tokenizer = new StringTokenizer(str, "[.?!\n]");
-        int count = 0;
-        Set<String> list = new HashSet<>();
-        try {
-            while (tokenizer.hasMoreTokens()) {
-                String[] words = tokenizer.nextToken().split(" ");
-                for (String s : words) {
-                    if (s.equalsIgnoreCase(word)) {
-                        count++;
-                        list.add(Arrays.toString(words));
-                    }
-                }
+    private List<String> filterSentences(List<String> content, String word) {
+        List<String> filterSentences = new ArrayList<>();
+        for (String sentence : content) {
+            if (sentence.contains(word)) {
+                filterSentences.add(sentence);
             }
-        } catch (Throwable ignored) {
         }
-        System.out.printf("Count of: \"%s\" \nis: %d.\n", word, count);
-        for (String s : list) {
-            System.out.println(s);
+        return filterSentences;
+    }
+    public void printSentences(List<String> content) {
+        System.out.println("Sentences:");
+        for (String sentences : content) {
+            System.out.println(sentences);
         }
-
     }
 }
 /*Используем классы FileInputStream, FileOutputStream, File

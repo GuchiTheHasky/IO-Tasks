@@ -1,44 +1,49 @@
 package guchi.the.hasky.fileanalyzer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FileAnalyzerTest {
 
-    FileAnalyzer analyzer = new FileAnalyzer();
-
-    @DisplayName("Test, is file.txt exist? True/False.")
-    @Test
-    public void testFileExistTrueFalse(){
-        boolean resultTrue = analyzer.isFileExist("Hello");
-        assertTrue(resultTrue);
-
-        boolean resultFalse = analyzer.isFileExist("ByeBye");
-        assertFalse(resultFalse);
-    }
-    @DisplayName("Test, convert path to String, work correctly.")
-    @Test
-    public void testFileToStringReturnString(){
-        String strTest = analyzer.fileToString("c:/test/Hello.txt");
-        assertNotNull(strTest);
+    private FileAnalyzer analyzer;
+    @BeforeEach
+    void init(){
+        analyzer = new FileAnalyzer();
     }
 
-    @DisplayName("Test, convert path to String, don't work correctly.")
     @Test
-    public void testFileToStringReturnNull(){
-        String strTest = analyzer.fileToString("c:/test/ByeBye.txt");
-        assertNull(strTest);
+    @DisplayName("Test, calculate words count.")
+    public void testCalculateWordsCount() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method method = FileAnalyzer.class.getDeclaredMethod("fileContent", String.class);
+        method.setAccessible(true);
+        String content = (String) method.invoke(analyzer, "Hello.txt");
+
+        int expected = 9;
+        int actual = analyzer.wordCount(content, "Hello");
+        assertEquals(expected, actual);
     }
 
-    @DisplayName("Test, convert String to Array, work correctly.")
     @Test
-    public void testConvertStringToArray(){
-        String text = analyzer.fileToString("c:/test/Hello.txt");
-       // String[] array = analyzer.stringToArray(text);
-       // assertTrue(array.length > 0);
+    @DisplayName("Test, throw exception message if file not found.")
+    public void f() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String expected = "Error code 404:\nWrong file name.";
+        Method method = FileAnalyzer.class.getDeclaredMethod("fileContent", String.class);
+        method.setAccessible(true);
+
+        String actual = (String) method.invoke(analyzer, "Content.txt");
+
+        assertEquals(expected, actual);
     }
+
+
+
 
 
 
